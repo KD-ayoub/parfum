@@ -1,0 +1,11 @@
+.blur-bg {
+    width: 100%;
+    height: calc(100vh - 175px);
+}
+
+.container-blur-bg {
+    position: absolute;
+    bottom: 0;
+    filter: blur(18px);
+    z-index: -1;
+}

@@ -1,13 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Authroutes from "./routes/Authroutes";
+import MainRoutes from "./routes/MainRoutes";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import "@fontsource-variable/public-sans";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const router = createBrowserRouter([Authroutes, MainRoutes]);
+const root = ReactDOM.createRoot(document.getElementById("root"));
+const theme = createTheme({
+  typography: {
+    allVariants: {
+      fontFamily: "Public sans variable, sans-serif",
+    },
+  },
+});
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+        <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
