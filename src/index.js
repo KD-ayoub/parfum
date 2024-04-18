@@ -7,7 +7,11 @@ import Authroutes from "./routes/Authroutes";
 import MainRoutes from "./routes/MainRoutes";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import "@fontsource-variable/public-sans";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Provider as JotaiProvider } from "jotai";
 
+// create a client
+const newClient = new QueryClient();
 const router = createBrowserRouter([Authroutes, MainRoutes]);
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const theme = createTheme({
@@ -20,7 +24,11 @@ const theme = createTheme({
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-        <RouterProvider router={router} />
+      <JotaiProvider>
+        <QueryClientProvider client={newClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </JotaiProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

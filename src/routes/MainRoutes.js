@@ -1,16 +1,15 @@
-import Pefumes from "../pages/main/Perfumes";
+import Dashboard from "../pages/main/Dashboard";
 import Settings from "../pages/main/Settings";
 
 const MainRoutes = {
-  path: "/",
   children: [
     {
-      path: "/perfumes",
-      element: <Pefumes />,
+      path: "/",
+      element: <Dashboard/>,
     },
     {
       path: "/settings",
-      element: <Settings />,
+      element: <Settings/>,
     },
   ],
 };
