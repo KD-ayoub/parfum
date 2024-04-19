@@ -89,7 +89,7 @@ export default function NotificationEmails() {
                 display: "flex",
                 alignItems: "center",
                 borderRadius: 20,
-                bgcolor: "#CDF5FD",
+                bgcolor: "#DBE9FF",
                 width: "fit-content",
                 padding: 1,
                 margin: 1,

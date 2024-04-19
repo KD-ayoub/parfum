@@ -14,7 +14,7 @@ import ListItemText from "@mui/material/ListItemText";
 
 export default function FilterSelect({ options }) {
   const [toggle, setToggle] = useState(false);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState(options[0]);
   const StyledButton = styled(Button)({
     width: "100%",
     textTransform: "none",
@@ -54,19 +54,14 @@ export default function FilterSelect({ options }) {
   return (
     <Box
       component={"div"}
-      sx={{ position: "relative", width: 190, maxWidth: "100%" }}
-      >
+      sx={{ position: "relative", width: options[0] === 'All' ? 190 : 90, maxWidth: "100%" }}
+    >
       <StyledButton
-        role="combobox"
-        aria-labelledby="select button"
-        aria-haspopup="listbox"
-        aria-expanded="false"
-        aria-controls="select-dropdown"
         onClick={() => {
           setToggle((prev) => !prev);
         }}
       >
-        <FilterAltIcon sx={{ color: "#898CA4" }} />
+        { options[0] === 'All' && <FilterAltIcon sx={{ color: "#898CA4" }} />}
         <Box
           component={"span"}
           sx={{ textAlign: "left", color: "#898ca4", fontWeight: 600 }}
@@ -85,38 +80,27 @@ export default function FilterSelect({ options }) {
         ></Box>
       </StyledButton>
       <StyledList>
-        <ListItem sx={{ padding: 0 }}>
-          <StyledListButton
-            onClick={(e) => {
-              setFilter(e.target.outerText);
-              setToggle((prev) => !prev);
-            }}
-          >
-            All
-          </StyledListButton>
-        </ListItem>
-        <Divider orientation="horizontal" sx={{ color: "#898CA4" }} flexItem />
-        <ListItem sx={{ padding: 0 }}>
-          <StyledListButton
-            onClick={(e) => {
-              setFilter(e.target.outerText);
-              setToggle((prev) => !prev);
-            }}
-          >
-            Tracked
-          </StyledListButton>
-        </ListItem>
-        <Divider orientation="horizontal" sx={{ color: "#898CA4" }} flexItem />
-        <ListItem sx={{ padding: 0 }}>
-          <StyledListButton
-            onClick={(e) => {
-              setFilter(e.target.outerText);
-              setToggle((prev) => !prev);
-            }}
-          >
-            Untracked
-          </StyledListButton>
-        </ListItem>
+        {options.map((option, index) => (
+          <div key={index}>
+            <ListItem sx={{ padding: 0 }}>
+              <StyledListButton
+                onClick={(e) => {
+                  setFilter(e.target.outerText);
+                  setToggle((prev) => !prev);
+                }}
+              >
+                {option}
+              </StyledListButton>
+            </ListItem>
+            {index < options.length - 1 && (
+              <Divider
+                orientation="horizontal"
+                sx={{ color: "#898CA4" }}
+                flexItem
+              />
+            )}
+          </div>
+        ))}
       </StyledList>
     </Box>
   );
