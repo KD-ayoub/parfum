@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
+import debounce from "lodash/debounce";
 
-export default function SearchBar() {
+export default function SearchBar({ searchValue, onChange }) {
+  const [focus, setFocus] = useState(true);
+  const searchRef = useRef();
   const Search = styled("div")(({ theme }) => ({
     position: "relative",
     borderRadius: theme.shape.borderRadius,
@@ -41,15 +44,34 @@ export default function SearchBar() {
       },
     },
   }));
-
+  useEffect(() => {
+    document.addEventListener("click", (e) => {
+      if (e.target !== searchRef.current.firstChild) {
+        console.log("search: ", e.target);
+        console.log("searchRef: ", searchRef.current.firstChild);
+        setFocus(false);
+      }
+    });
+  }, []);
   return (
     <Search>
       <SearchIconWrapper>
         <SearchIcon />
       </SearchIconWrapper>
       <StyledInputBase
+        ref={searchRef}
+        autoFocus={focus}
+        value={searchValue ? searchValue : ""}
         placeholder="Search…"
         inputProps={{ "aria-label": "search" }}
+        onChange={(e) => {
+          // setInput(e.target.value);
+          // e.preventDefault();
+          console.log(e.target.value);
+          console.log("trigered");
+          // debounce(() => onChange(e.target.value), 300);
+          onChange(e.target.value);
+        }}
       />
     </Search>
   );

@@ -1,50 +1,181 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useDeferredValue, useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import Pagination from "@mui/material/Pagination";
 import FullScreen from "../../components/main/FullScreen";
 import SearchBar from "../../components/main/SearchBar";
 import Logo from "../../components/main/Logo";
 import FilterSelect from "../../components/styledComponents/FilterSelect";
 import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import ImageTest from "../../assets/Images/Rectangle40777.png";
-import LinkPng from "../../assets/Images/linkPng.png";
-import AntSwitch from "../../utils/main/AntSwitch";
+import { useAtom } from "jotai";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { itemsData, showItemSettings, intialqueryParams} from "./index";
+import getItems from "../../api/getItems";
+import { produce } from "immer";
+import BodyTable from "../../components/main/BodyTable";
+import { debounce } from "lodash";
+import CustomSelect from "../../components/main/Filters/CustomSelect";
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
+const head = [
+  "Image",
+  "Name",
+  "Stock",
+  "Vendor",
+  "Price",
+  "Tracked",
+  "Last Fetch",
+  "Last Update",
+  "Link",
 ];
 
 export default function Dashboard() {
+  const [items, setItems] = useAtom(itemsData);
+  const [showItemSetting, setShowItemSetting] = useAtom(showItemSettings);
+  const [searchValue, setSearchValue] = useState("");
+  const [queryParams, setQueryParams] = useAtom(intialqueryParams)
+  // const [queryParams, setQueryParams] = useState({
+  //   pageSize: 25,
+  //   page: "1",
+  //   search: "",
+  //   status: null,
+  //   ordering: '',
+  // });
+  const deferredQuery = useDeferredValue(queryParams);
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: ["itemsData"],
+    queryFn: async () => {
+      const data = await getItems(queryParams);
+      console.log("hererereer", data);
+      setItems(data);
+      setShowItemSetting(new Array(data.results.length).fill(false));
+      return data;
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (queryParam) => {
+      console.log('mutation..', queryParam);
+      setQueryParams(
+        produce(queryParams, (draft) => {
+          draft.page = queryParam.page;
+          draft.search = queryParam.search;
+          draft.status = queryParam.status;
+          draft.pageSize = queryParam.pageSize;
+          draft.ordering = queryParam.ordering;
+        })
+      );
+      return queryParam;
+    },
+    onSuccess: async (data) => {
+      // queryClient.setQueryData(["itemsData"]);
+      await queryClient.invalidateQueries({
+        queryKey: ["itemsData"],
+      });
+      document.getElementById("main").scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    },
+  });
+  if (queryClient.isMutating()) {
+    console.log('At least one mutation is fetching!', queryClient.isMutating());
+  }
+  if (query.isLoading) {
+    return <div>Loading.....</div>;
+  }
+
+  function handlPagination(e, p) {
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.page = p.toString();
+    }));
+    console.log("hhhhhh", p);
+
+    console.log("did", p);
+  }
+  function handleTracking(option) {
+    console.log("option tracking", option);
+    let status = null;
+    if (option === "Tracked") {
+      status = true;
+    } else if (option === "Untracked") {
+      status = false;
+    }
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.status = status;
+    }));
+  }
+  function handlPageSize(option) {
+    console.log("pagesize option", parseInt(option));
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.pageSize = parseInt(option);
+    }));
+  }
+  function handlSearch(value) {
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.search = value;
+    }));
+    setSearchValue(value);
+  }
+  function handlePrice(e) {
+    let ordering = '';
+    if (e === 'Ascending') {
+      ordering = 'price';
+    } else if (e === 'Descending') {
+      ordering = '-price';
+    }
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.ordering = ordering;
+    }));
+    console.log('price', e);
+  }
+  function handleLastFetch(e) {
+    let ordering = '';
+    if (e === 'Ascending') {
+      ordering = 'last_fetched';
+    } else if (e === 'Descending') {
+      ordering = '-last_fetched';
+    }
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.ordering = ordering;
+    }));
+    console.log('price', e);
+  }
+  function handleUpdatedAt(e) {
+    let ordering = '';
+    if (e === 'Ascending') {
+      ordering = 'updated_at';
+    } else if (e === 'Descending') {
+      ordering = '-updated_at';
+    }
+    mutation.mutate(produce(queryParams, (draft) => {
+      draft.ordering = ordering;
+    }));
+    console.log('price', e);
+  }
   return (
     <>
       <AppBar position="static" elevation={1}>
         <Container sx={{ backgroundColor: "white" }} maxWidth={"2000px"}>
           <Toolbar disableGutters>
             <Logo />
-            <SearchBar />
+            <SearchBar
+              searchValue={searchValue}
+              onChange={handlSearch}
+            />
             <FullScreen />
           </Toolbar>
         </Container>
       </AppBar>
       <Box
+        id="main"
         component={"main"}
         sx={{
           height: "calc(100vh - 64px)",
@@ -61,7 +192,22 @@ export default function Dashboard() {
               flexWrap: "wrap",
             }}
           >
-            <FilterSelect options={["All", "Tracked", "Untracked"]} />
+            <CustomSelect
+              options={["All", "Tracked", "Untracked"]}
+              onChange={handleTracking}
+            />
+            <CustomSelect
+              options={["Price", "Ascending", "Descending"]}
+              onChange={handlePrice}
+            />
+            <CustomSelect
+              options={["Last Fetch", "Ascending", "Descending"]}
+              onChange={handleLastFetch}
+            />
+            <CustomSelect
+              options={["Last update", "Ascending", "Descending"]}
+              onChange={handleUpdatedAt}
+            />
             <Box
               sx={{
                 display: "flex",
@@ -73,7 +219,10 @@ export default function Dashboard() {
               <Typography variant="body1" color={"#898CA4"}>
                 Items shown
               </Typography>
-              <FilterSelect options={["20", "50", "100"]} />
+              <FilterSelect
+                options={["25", "50", "100"]}
+                onChange={handlPageSize}
+              />
             </Box>
           </Box>
         </Box>
@@ -91,113 +240,29 @@ export default function Dashboard() {
                 borderRadius: "15px",
               }}
             >
-              <tr style={{ border: "hidden" }}>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Image</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Name</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Stock</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Vendor</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Price</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Tracked</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Last Fetch</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Last Update</Typography>
-                </TableCell>
-                <TableCell component={"th"} align="center">
-                  <Typography variant="h6">Link</Typography>
-                </TableCell>
-              </tr>
-              <tr
-                key={rows[0].name}
-                className="style-table"
-                style={{ backgroundColor: "white", borderRadius: "15rem" }}
-              >
-                <TableCell component={"td"} align="left">
-                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <img src={ImageTest} />
-                  </Box>
-                </TableCell>
-                <TableCell
-                  sx={{ maxWidth: "200px" }}
-                  component={"td"}
-                  align="center"
-                >
-                  <Typography
-                    component={"p"}
-                    variant="subtitle1"
-                    sx={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                    title="Donna Born In Roma Eau de Parfum 1.7 oz/ 50 mL"
-                  >
-                    Donna Born In Roma Eau de Parfum 1.7 oz/ 50 mL
-                  </Typography>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <Typography
-                    sx={{
-                      height: 30,
-                      bgcolor: "#DDF1DD",
-                      borderRadius: "20px",
-                    }}
-                    variant="subtitle1"
-                    color={"#42AF43"}
-                  >
-                    In Stock
-                  </Typography>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <Typography variant="subtitle1" sx>
-                    Sephora
-                  </Typography>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <Typography variant="subtitle1" sx>
-                    $135.00
-                  </Typography>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    <AntSwitch
-                      id=""
-                      // checked={exampleSettings.settings.stock.stock_to_out}
-                      // onChange={handlStockToOut}
-                    />
-                  </Box>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <Typography variant="subtitle1" sx>
-                    2days ago
-                  </Typography>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <Typography variant="subtitle1" sx>
-                    16hours ago
-                  </Typography>
-                </TableCell>
-                <TableCell component={"td"} align="center">
-                  <img src={LinkPng} alt="link png" />
-                </TableCell>
-              </tr>
-              {/* <Box>sgsdgsdgdgsd</Box> */}
-              
+              <TableHead>
+                <tr style={{ border: "hidden" }}>
+                  {head.map((value, index) => {
+                    return (
+                      <TableCell component={"th"} align="center" key={index}>
+                        <Typography variant="h6">{value}</Typography>
+                      </TableCell>
+                    );
+                  })}
+                </tr>
+              </TableHead>
+              <BodyTable />
             </Table>
           </TableContainer>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Pagination
+              count={Math.ceil(items.count / queryParams.pageSize)}
+              size="large"
+              shape="rounded"
+              variant="outlined"
+              onChange={handlPagination}
+            />
+          </Box>
         </Box>
       </Box>
     </>

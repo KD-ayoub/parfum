@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import { produce } from "immer";
 import { useAtom } from 'jotai';
-import settingData from "../../pages/main/index";
+import { settingData } from "../../pages/main/index";
 
 export default function NotificationEmails() {
 

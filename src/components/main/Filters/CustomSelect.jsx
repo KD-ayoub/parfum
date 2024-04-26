@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
-import "./style.css";
+// import "./style.css";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
@@ -12,7 +12,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
-export default function FilterSelect({ options, onChange}) {
+export default function CustomSelect({ options, onChange}) {
   const buttonRef = useRef(null);
   const [toggle, setToggle] = useState(false);
   const [filter, setFilter] = useState(options[0]);
@@ -64,7 +64,7 @@ export default function FilterSelect({ options, onChange}) {
   return (
     <Box
     component={"div"}
-    sx={{ position: "relative", width: options[0] === 'All' ? 190 : 90, maxWidth: "100%" }}
+    sx={{ position: "relative", width: 190, maxWidth: "100%" }}
     >
       <StyledButton
       ref={buttonRef}
@@ -73,7 +73,7 @@ export default function FilterSelect({ options, onChange}) {
           setToggle((prev) => !prev);
         }}
       >
-        { options[0] === 'All' && <FilterAltIcon sx={{ color: "#898CA4" }} />}
+        <FilterAltIcon sx={{ color: "#898CA4" }} />
         <Box
           component={"span"}
           sx={{ textAlign: "left", color: "#898ca4", fontWeight: 600 }}

@@ -11,7 +11,7 @@ import AntSwitch from "../../utils/main/AntSwitch";
 import NotificationEmails from "./NotificationEmails";
 import { produce } from "immer";
 import { useAtom } from 'jotai';
-import settingData from "../../pages/main/index";
+import { settingData } from "../../pages/main/index";
 
 export default function NotificationSettings() {
     const [exampleSettings, setExampleSettings] = useAtom(settingData);

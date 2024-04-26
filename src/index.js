@@ -23,13 +23,13 @@ const theme = createTheme({
 });
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <JotaiProvider>
-        <QueryClientProvider client={newClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </JotaiProvider>
-    </ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <JotaiProvider>
+          <QueryClientProvider client={newClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </JotaiProvider>
+      </ThemeProvider>
   </React.StrictMode>
 );
 

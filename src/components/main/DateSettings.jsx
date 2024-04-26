@@ -8,7 +8,7 @@ import FormControl from "@mui/material/FormControl";
 import AntSwitch from "../../utils/main/AntSwitch";
 import { produce } from 'immer';
 import { useAtom } from 'jotai';
-import settingData from "../../pages/main/index";
+import { settingData } from "../../pages/main/index";
 
 export default function DateSettings() {
 

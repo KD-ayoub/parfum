@@ -15,8 +15,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import getSettings from "../../api/getSettings";
 import postSettings from "../../api/postSettings";
 import { atom, useAtom } from "jotai";
-import settingData from "./index";
-
+import { settingData } from "./index";
+import { Toaster, toast } from "sonner";
 
 export default function Settings() {
   const [settingsData, setSettingsData] = useAtom(settingData);
@@ -42,6 +42,7 @@ export default function Settings() {
       queryClient.invalidateQueries({
         queryKey: ["settingsData"],
       });
+      toast.success("Saved");
     },
   });
 
@@ -65,6 +66,7 @@ export default function Settings() {
   return (
     <>
       <AppBar position="static" elevation={1}>
+        <Toaster position="top-center" richColors />
         <Container sx={{ backgroundColor: "white" }} maxWidth={"2000px"}>
           <Toolbar disableGutters>
             <Logo />
@@ -100,11 +102,12 @@ export default function Settings() {
               gap: 10,
               flexWrap: "wrap",
               bgcolor: "white",
+              borderRadius: "15px",
             }}
           >
-            <NotificationSettings/>
+            <NotificationSettings />
             <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <DateSettings/>
+              <DateSettings />
               <Button
                 sx={{ maxWidth: 150, alignSelf: "flex-end" }}
                 variant="contained"

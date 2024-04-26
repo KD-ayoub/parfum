@@ -24,7 +24,24 @@ const initialValues = {
       emails: [],
     },
   };
-  
-  const settingData = atom(initialValues);
+  const itemInitials = {
+    count: 0,
+    next: null,
+    previous: null,
+    results: [],
+  }
+  const showItemSettingsArray = [];
+  const queryParams = {
+    pageSize: 25,
+    page: "1",
+    search: "",
+    status: null,
+    ordering: '',
+  };
 
-  export default settingData;
+  export const settingData = atom(initialValues);
+  export const itemsData = atom(itemInitials);
+  export const showItemSettings = atom(showItemSettingsArray);
+  export const intialqueryParams = atom(queryParams);
+
+  // export default settingData;
