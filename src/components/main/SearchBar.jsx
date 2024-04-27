@@ -46,10 +46,10 @@ export default function SearchBar({ searchValue, onChange }) {
   }));
   useEffect(() => {
     document.addEventListener("click", (e) => {
-      if (e.target !== searchRef.current.firstChild) {
-        console.log("search: ", e.target);
-        console.log("searchRef: ", searchRef.current.firstChild);
-        setFocus(false);
+      if (searchRef.current) {
+        if (e.target !== searchRef.current.firstChild) {
+          setFocus(false);
+        }
       }
     });
   }, []);

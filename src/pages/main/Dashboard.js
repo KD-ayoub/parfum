@@ -16,12 +16,17 @@ import TableHead from "@mui/material/TableHead";
 import Paper from "@mui/material/Paper";
 import { useAtom } from "jotai";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { itemsData, showItemSettings, intialqueryParams} from "./index";
+import { itemsData, showItemSettings, intialqueryParams } from "./index";
 import getItems from "../../api/getItems";
 import { produce } from "immer";
 import BodyTable from "../../components/main/BodyTable";
 import { debounce } from "lodash";
 import CustomSelect from "../../components/main/Filters/CustomSelect";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
+import IconButton from "@mui/material/IconButton";
+import useSignOut from "react-auth-kit/hooks/useSignOut";
+import { useNavigate } from "react-router-dom";
 
 const head = [
   "Image",
@@ -39,14 +44,9 @@ export default function Dashboard() {
   const [items, setItems] = useAtom(itemsData);
   const [showItemSetting, setShowItemSetting] = useAtom(showItemSettings);
   const [searchValue, setSearchValue] = useState("");
-  const [queryParams, setQueryParams] = useAtom(intialqueryParams)
-  // const [queryParams, setQueryParams] = useState({
-  //   pageSize: 25,
-  //   page: "1",
-  //   search: "",
-  //   status: null,
-  //   ordering: '',
-  // });
+  const [queryParams, setQueryParams] = useAtom(intialqueryParams);
+  const signOut = useSignOut();
+  const navigate = useNavigate();
   const deferredQuery = useDeferredValue(queryParams);
   const queryClient = useQueryClient();
   const query = useQuery({
@@ -62,7 +62,7 @@ export default function Dashboard() {
 
   const mutation = useMutation({
     mutationFn: async (queryParam) => {
-      console.log('mutation..', queryParam);
+      console.log("mutation..", queryParam);
       setQueryParams(
         produce(queryParams, (draft) => {
           draft.page = queryParam.page;
@@ -86,16 +86,18 @@ export default function Dashboard() {
     },
   });
   if (queryClient.isMutating()) {
-    console.log('At least one mutation is fetching!', queryClient.isMutating());
+    console.log("At least one mutation is fetching!", queryClient.isMutating());
   }
   if (query.isLoading) {
     return <div>Loading.....</div>;
   }
 
   function handlPagination(e, p) {
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.page = p.toString();
-    }));
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.page = p.toString();
+      })
+    );
     console.log("hhhhhh", p);
 
     console.log("did", p);
@@ -108,57 +110,70 @@ export default function Dashboard() {
     } else if (option === "Untracked") {
       status = false;
     }
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.status = status;
-    }));
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.status = status;
+        draft.page = '1';
+      })
+    );
   }
   function handlPageSize(option) {
     console.log("pagesize option", parseInt(option));
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.pageSize = parseInt(option);
-    }));
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.pageSize = parseInt(option);
+      })
+    );
   }
   function handlSearch(value) {
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.search = value;
-    }));
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.search = value;
+      })
+    );
     setSearchValue(value);
   }
   function handlePrice(e) {
-    let ordering = '';
-    if (e === 'Ascending') {
-      ordering = 'price';
-    } else if (e === 'Descending') {
-      ordering = '-price';
+    let ordering = "";
+    if (e === "Ascending") {
+      ordering = "price";
+    } else if (e === "Descending") {
+      ordering = "-price";
     }
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.ordering = ordering;
-    }));
-    console.log('price', e);
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.ordering = ordering;
+      })
+    );
+    console.log("price", e);
   }
   function handleLastFetch(e) {
-    let ordering = '';
-    if (e === 'Ascending') {
-      ordering = 'last_fetched';
-    } else if (e === 'Descending') {
-      ordering = '-last_fetched';
+    let ordering = "";
+    if (e === "Ascending") {
+      ordering = "last_fetched";
+    } else if (e === "Descending") {
+      ordering = "-last_fetched";
     }
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.ordering = ordering;
-    }));
-    console.log('price', e);
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.ordering = ordering;
+      })
+    );
+    console.log("price", e);
   }
   function handleUpdatedAt(e) {
-    let ordering = '';
-    if (e === 'Ascending') {
-      ordering = 'updated_at';
-    } else if (e === 'Descending') {
-      ordering = '-updated_at';
+    let ordering = "";
+    if (e === "Ascending") {
+      ordering = "updated_at";
+    } else if (e === "Descending") {
+      ordering = "-updated_at";
     }
-    mutation.mutate(produce(queryParams, (draft) => {
-      draft.ordering = ordering;
-    }));
-    console.log('price', e);
+    mutation.mutate(
+      produce(queryParams, (draft) => {
+        draft.ordering = ordering;
+      })
+    );
+    console.log("price", e);
   }
   return (
     <>
@@ -166,11 +181,23 @@ export default function Dashboard() {
         <Container sx={{ backgroundColor: "white" }} maxWidth={"2000px"}>
           <Toolbar disableGutters>
             <Logo />
-            <SearchBar
-              searchValue={searchValue}
-              onChange={handlSearch}
-            />
-            <FullScreen />
+            <SearchBar searchValue={searchValue} onChange={handlSearch} />
+            <Box sx={{ display: 'flex', justifyContent: 'end', flexGrow: 1, gap: 2 }}>
+              <FullScreen />
+              <IconButton onClick={() => {
+                  navigate("/settings");
+                }}>
+                <SettingsIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => {
+                  signOut();
+                  navigate("/auth/login");
+                }}
+              >
+                <LogoutIcon />
+              </IconButton>
+            </Box>
           </Toolbar>
         </Container>
       </AppBar>
@@ -257,6 +284,7 @@ export default function Dashboard() {
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Pagination
               count={Math.ceil(items.count / queryParams.pageSize)}
+              page={parseInt(queryParams.page)}
               size="large"
               shape="rounded"
               variant="outlined"

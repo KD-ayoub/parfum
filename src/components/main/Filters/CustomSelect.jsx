@@ -12,7 +12,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
-export default function CustomSelect({ options, onChange}) {
+export default function CustomSelect({ options, onChange }) {
   const buttonRef = useRef(null);
   const [toggle, setToggle] = useState(false);
   const [filter, setFilter] = useState(options[0]);
@@ -53,23 +53,28 @@ export default function CustomSelect({ options, onChange}) {
     fontWeight: 600,
   });
   useEffect(() => {
-    document.addEventListener('click', (e) => {
-      if ((e.target.outerText !== buttonRef.current.outerText) && e.target.outerText) {
+    document.addEventListener("click", (e) => {
+      if (buttonRef.current) {
+        if (
+          e.target.outerText !== buttonRef.current.outerText &&
+          e.target.outerText
+        ) {
+          setToggle(false);
+        }
         // console.log('target..', e.target.outerText);
         // console.log('current..', buttonRef.current.outerText);
-        setToggle(false);
       }
-    })
-  }, [])
+    });
+  }, []);
   return (
     <Box
-    component={"div"}
-    sx={{ position: "relative", width: 190, maxWidth: "100%" }}
+      component={"div"}
+      sx={{ position: "relative", width: 190, maxWidth: "100%" }}
     >
       <StyledButton
-      ref={buttonRef}
+        ref={buttonRef}
         onClick={() => {
-          console.log('show..')
+          console.log("show..");
           setToggle((prev) => !prev);
         }}
       >
@@ -93,7 +98,7 @@ export default function CustomSelect({ options, onChange}) {
       </StyledButton>
       <StyledList>
         {options.map((option, index) => (
-          <div key={index} >
+          <div key={index}>
             <ListItem sx={{ padding: 0 }}>
               <StyledListButton
                 onClick={(e) => {

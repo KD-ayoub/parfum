@@ -22,7 +22,7 @@ const defaultItemsetting = {
   desired_price: 0,
   is_desired_price: false,
   stock_availability: false,
-  tarcking_frequency: {
+  tracking_frequency: {
     amount: 0,
     unit: "Hours",
   },
@@ -65,7 +65,7 @@ export default function ItemSettings({ index }) {
     const parsed = parseInt(e.target.value);
     setItems(
       produce(items, (draft) => {
-        draft.results[index].setting.tarcking_frequency.amount = isNaN(parsed)
+        draft.results[index].setting.tracking_frequency.amount = isNaN(parsed)
           ? 0
           : parsed;
       })
@@ -74,7 +74,7 @@ export default function ItemSettings({ index }) {
   function handlTrackedUnit(e) {
     setItems(
       produce(items, (draft) => {
-        draft.results[index].setting.tarcking_frequency.unit = e.target.value;
+        draft.results[index].setting.tracking_frequency.unit = e.target.value;
       })
     );
   }
@@ -86,20 +86,20 @@ export default function ItemSettings({ index }) {
     );
   }
   async function handlSaveButton() {
-    const { desired_price, tarcking_frequency } =
+    const { desired_price, tracking_frequency } =
       items.results[index].setting ?? defaultItemsetting;
-    if (desired_price > 10000) {
+    if (desired_price > 100000) {
       // toast error (price too long)
       toast.error("Price too long");
       console.log(items.results[index].setting);
       return;
     }
-    if (tarcking_frequency.unit === "Hours" && tarcking_frequency.amount > 24) {
+    if (tracking_frequency.unit === "Hours" && tracking_frequency.amount > 24) {
       // toast error (limit hours exceeded)
       toast.error("limit hours exceeded");
       return;
     }
-    if (tarcking_frequency.unit === "Days" && tarcking_frequency.amount > 31) {
+    if (tracking_frequency.unit === "Days" && tracking_frequency.amount > 31) {
       // toast error (limit Days exceeded)
       toast.error("limit days exceeded");
       return;
@@ -111,6 +111,8 @@ export default function ItemSettings({ index }) {
     ) {
       /// send null to backend
       console.log("setting equal...");
+      const res = await putItemSettings(null, items.results[index].id);
+      console.log("setting equal...", res);
       toast.success("Saved");
       return;
     }
@@ -120,7 +122,7 @@ export default function ItemSettings({ index }) {
     const res = await putItemSettings(items.results[index].setting, items.results[index].id);
     console.log("response of item", res);
     toast.success("Saved");
-    console.log("test", desired_price, tarcking_frequency);
+    console.log("test", desired_price, tracking_frequency);
     console.log("setting", items.results[index].setting);
   }
   return (
@@ -185,7 +187,7 @@ export default function ItemSettings({ index }) {
             value={
               !items.results[index].setting
                 ? 0
-                : items.results[index].setting.tarcking_frequency.amount
+                : items.results[index].setting.tracking_frequency.amount
             }
             sx={{
               bgcolor: "#F5F6FA",
@@ -205,7 +207,7 @@ export default function ItemSettings({ index }) {
               value={
                 !items.results[index].setting
                   ? "Hours"
-                  : items.results[index].setting.tarcking_frequency.unit
+                  : items.results[index].setting.tracking_frequency.unit
               }
               id="unitt"
               sx={{ height: 30 }}

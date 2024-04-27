@@ -12,7 +12,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
-export default function FilterSelect({ options, onChange}) {
+export default function FilterSelect({ options, onChange }) {
   const buttonRef = useRef(null);
   const [toggle, setToggle] = useState(false);
   const [filter, setFilter] = useState(options[0]);
@@ -53,27 +53,36 @@ export default function FilterSelect({ options, onChange}) {
     fontWeight: 600,
   });
   useEffect(() => {
-    document.addEventListener('click', (e) => {
-      if ((e.target.outerText !== buttonRef.current.outerText) && e.target.outerText) {
-        // console.log('target..', e.target.outerText);
-        // console.log('current..', buttonRef.current.outerText);
-        setToggle(false);
+    document.addEventListener("click", (e) => {
+      if (buttonRef.current) {
+        if (
+          e.target.outerText !== buttonRef.current.outerText &&
+          e.target.outerText
+        ) {
+          // console.log('target..', e.target.outerText);
+          // console.log('current..', buttonRef.current.outerText);
+          setToggle(false);
+        }
       }
-    })
-  }, [])
+    });
+  }, []);
   return (
     <Box
-    component={"div"}
-    sx={{ position: "relative", width: options[0] === 'All' ? 190 : 90, maxWidth: "100%" }}
+      component={"div"}
+      sx={{
+        position: "relative",
+        width: options[0] === "All" ? 190 : 90,
+        maxWidth: "100%",
+      }}
     >
       <StyledButton
-      ref={buttonRef}
+        ref={buttonRef}
         onClick={() => {
-          console.log('show..')
+          console.log("show..");
           setToggle((prev) => !prev);
         }}
       >
-        { options[0] === 'All' && <FilterAltIcon sx={{ color: "#898CA4" }} />}
+        {options[0] === "All" && <FilterAltIcon sx={{ color: "#898CA4" }} />}
         <Box
           component={"span"}
           sx={{ textAlign: "left", color: "#898ca4", fontWeight: 600 }}
@@ -93,7 +102,7 @@ export default function FilterSelect({ options, onChange}) {
       </StyledButton>
       <StyledList>
         {options.map((option, index) => (
-          <div key={index} >
+          <div key={index}>
             <ListItem sx={{ padding: 0 }}>
               <StyledListButton
                 onClick={(e) => {
