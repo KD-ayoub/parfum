@@ -17,9 +17,15 @@ import postSettings from "../../api/postSettings";
 import { atom, useAtom } from "jotai";
 import { settingData } from "./index";
 import { Toaster, toast } from "sonner";
+import HomeIcon from "@mui/icons-material/Home";
+import IconButton from "@mui/material/IconButton";
+import { useNavigate } from "react-router-dom";
+import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
 
 export default function Settings() {
   const [settingsData, setSettingsData] = useAtom(settingData);
+  const authHeader = useAuthHeader()
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ["settingsData"],
@@ -68,8 +74,11 @@ export default function Settings() {
       <AppBar position="static" elevation={1}>
         <Toaster position="top-center" richColors />
         <Container sx={{ backgroundColor: "white" }} maxWidth={"2000px"}>
-          <Toolbar disableGutters>
+          <Toolbar disableGutters sx={{ gap: 4 }}>
             <Logo />
+            <IconButton onClick={() => navigate('/')}>
+              <HomeIcon />
+            </IconButton>
             <FullScreen />
           </Toolbar>
         </Container>

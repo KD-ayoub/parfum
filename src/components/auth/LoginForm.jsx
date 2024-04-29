@@ -21,11 +21,12 @@ import { method } from "lodash";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
 import postLogin from "../../api/postLogin";
-import useIsAuthenticated from 'react-auth-kit/hooks/useIsAuthenticated'
+import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
+import { Toaster, toast } from "sonner";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const isAuthenticated = useIsAuthenticated()
+  const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
   const signIn = useSignIn();
   const {
@@ -34,44 +35,47 @@ export default function LoginForm() {
     formState: { errors },
     reset,
   } = useForm({ resolver: yupResolver(authschemas.loginSchema) });
+  async function handlLogin(data) {
+    console.log("here", data);
+    const res = await postLogin(data);
+    console.log("res from login", res);
+    if (res.code) {
+      console.log("error error error ...");
+      toast.error('username or password incorrect');
+      // reset();
+      return;
+    }
+    //// signIn
+    if (
+      signIn({
+        auth: {
+          token: res.access,
+          type: "Bearer",
+        },
+        // refresh: res.refresh,
+        //   userState: {
+        //     name: 'React User',
+        //     uid: 123456
+        // }
+      })
+    ) {
+      navigate("/");
+    }
+    console.log("passed...");
+    reset();
+    /// data recieved from inputs
+  }
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('is Authenticated');
-      navigate('/');
+      console.log("is Authenticated");
+      navigate("/");
     } else {
-      console.log('not Authenticated');
-  
+      console.log("not Authenticated");
     }
-  },[]);
+  }, []);
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit(async (data) => {
-        console.log("here", data);
-        const res = await postLogin(data);
-        console.log('res from login', res);
-        //// signIn
-        if (signIn({
-          auth: {
-            token: res.access,
-            type: "Bearer",
-          },
-          // refresh: res.refresh,
-          //   userState: {
-          //     name: 'React User',
-          //     uid: 123456
-          // }
-          })) {
-            navigate('/');
-          } else {
-            // ////////////////////
-            /// toast error 
-          }
-        console.log("passed...");
-        reset();
-      })} /// data recieved from inputs
-      sx={{ mt: 1 }}
-    >
+    <Box component="form" onSubmit={handleSubmit(handlLogin)} sx={{ mt: 1 }}>
+      <Toaster position="top-center" richColors />
       <FormControl sx={{ width: "100%", marginY: 2 }} variant="outlined">
         <InputLabel htmlFor="username">username</InputLabel>
         <OutlinedInput {...register("username")} label="username" />

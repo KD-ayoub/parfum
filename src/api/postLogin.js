@@ -13,6 +13,7 @@ export default async function postLogin(data) {
     );
     return response.data;
   } catch (error) {
-    console.log("Error in login ", error.response.data.detail);
+    console.log("Error in login ", error);
+    return error;
   }
 }

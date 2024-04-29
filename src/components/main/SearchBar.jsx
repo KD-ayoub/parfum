@@ -48,7 +48,12 @@ export default function SearchBar({ searchValue, onChange }) {
     document.addEventListener("click", (e) => {
       if (searchRef.current) {
         if (e.target !== searchRef.current.firstChild) {
+          console.log("current-1", e.target);
+          console.log("current-2", searchRef.current.firstChild);
           setFocus(false);
+        } else {
+          console.log('current-3', searchRef.current.autofocus)
+          // searchRef.current.autofocus = true;
         }
       }
     });
@@ -70,7 +75,9 @@ export default function SearchBar({ searchValue, onChange }) {
           console.log(e.target.value);
           console.log("trigered");
           // debounce(() => onChange(e.target.value), 300);
+          // searchRef.current.autofocus = true;
           onChange(e.target.value);
+          setFocus(true);
         }}
       />
     </Search>

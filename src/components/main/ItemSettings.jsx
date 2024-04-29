@@ -16,6 +16,7 @@ import postItemSettings from "../../api/getItemStatus";
 import { Toaster, toast } from "sonner";
 import { method } from "lodash";
 import putItemSettings from "../../api/putItemSettings";
+import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
 
 const defaultItemsetting = {
   changed: false,
@@ -30,6 +31,7 @@ const defaultItemsetting = {
 
 export default function ItemSettings({ index }) {
   const [items, setItems] = useAtom(itemsData);
+  const authHeader = useAuthHeader()
   function handlPriceChange(e) {
     const parsed = parseInt(e.target.value);
     setItems(
@@ -130,7 +132,7 @@ export default function ItemSettings({ index }) {
       <Toaster position="top-center" richColors />
       <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
         <Typography variant="subtitle1" color={"#7D7D7D"}>
-          Notify when price is {index}
+          Notify when price is
         </Typography>
         <OutlinedInput
           // autoFocus

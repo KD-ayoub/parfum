@@ -27,6 +27,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import IconButton from "@mui/material/IconButton";
 import useSignOut from "react-auth-kit/hooks/useSignOut";
 import { useNavigate } from "react-router-dom";
+import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
 
 const head = [
   "Image",
@@ -125,8 +126,8 @@ export default function Dashboard() {
       })
     );
   }
-  function handlSearch(value) {
-    mutation.mutate(
+  async function handlSearch(value) {
+    await mutation.mutate(
       produce(queryParams, (draft) => {
         draft.search = value;
       })
