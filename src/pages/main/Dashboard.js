@@ -28,6 +28,7 @@ import IconButton from "@mui/material/IconButton";
 import useSignOut from "react-auth-kit/hooks/useSignOut";
 import { useNavigate } from "react-router-dom";
 import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
+import { useDebounce } from "@uidotdev/usehooks";
 
 const head = [
   "Image",
@@ -48,7 +49,7 @@ export default function Dashboard() {
   const [queryParams, setQueryParams] = useAtom(intialqueryParams);
   const signOut = useSignOut();
   const navigate = useNavigate();
-  const deferredQuery = useDeferredValue(queryParams);
+  const deferredQuery = useDebounce(queryParams, 300);
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ["itemsData"],
@@ -80,15 +81,13 @@ export default function Dashboard() {
       await queryClient.invalidateQueries({
         queryKey: ["itemsData"],
       });
+      
       document.getElementById("main").scrollTo({
         top: 0,
         behavior: "smooth",
       });
     },
   });
-  if (queryClient.isMutating()) {
-    console.log("At least one mutation is fetching!", queryClient.isMutating());
-  }
   if (query.isLoading) {
     return <div>Loading.....</div>;
   }
@@ -127,12 +126,16 @@ export default function Dashboard() {
     );
   }
   async function handlSearch(value) {
-    await mutation.mutate(
+    // if (mutation.data) {
+    //   // setSearchValue(value);
+    // }
+    // console.log('mutaon mutaion', mutation.mutateAsync());
+    setSearchValue(value);
+    await mutation.mutateAsync(
       produce(queryParams, (draft) => {
         draft.search = value;
       })
     );
-    setSearchValue(value);
   }
   function handlePrice(e) {
     let ordering = "";
