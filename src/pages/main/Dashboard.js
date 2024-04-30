@@ -26,8 +26,9 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from "@mui/icons-material/Settings";
 import IconButton from "@mui/material/IconButton";
 import useSignOut from "react-auth-kit/hooks/useSignOut";
-import { useNavigate } from "react-router-dom";
-import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
+import { useNavigate, useSearchParams } from "react-router-dom";
+import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
+import useDebounce from "../../components/hooks/useDebounce";
 
 const head = [
   "Image",
@@ -46,16 +47,19 @@ export default function Dashboard() {
   const [showItemSetting, setShowItemSetting] = useAtom(showItemSettings);
   const [searchValue, setSearchValue] = useState("");
   const [queryParams, setQueryParams] = useAtom(intialqueryParams);
+  const debouncedValue = useDebounce(queryParams, 300);
+  const [searchParams, setSearchParams] = useSearchParams();
   const signOut = useSignOut();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const query = useQuery({
-    queryKey: ["itemsData"],
+    queryKey: ["itemsData", debouncedValue],
     queryFn: async () => {
       const data = await getItems(queryParams);
       console.log("hererereer", data);
       setItems(data);
       setShowItemSetting(new Array(data.results.length).fill(false));
+      setSearchParams(queryParams);
       return data;
     },
   });
@@ -79,18 +83,21 @@ export default function Dashboard() {
       await queryClient.invalidateQueries({
         queryKey: ["itemsData"],
       });
-      
+
       document.getElementById("main").scrollTo({
         top: 0,
         behavior: "smooth",
       });
     },
   });
-  if (query.isLoading) {
-    return <div>Loading.....</div>;
-  }
+  // if (query.isLoading) {
+  //   return <div>Loading.....</div>;
+  // }
 
   function handlPagination(e, p) {
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.page = p.toString();
+    }));
     mutation.mutate(
       produce(queryParams, (draft) => {
         draft.page = p.toString();
@@ -108,32 +115,46 @@ export default function Dashboard() {
     } else if (option === "Untracked") {
       status = false;
     }
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.status = status;
+    }));
     mutation.mutate(
       produce(queryParams, (draft) => {
         draft.status = status;
-        draft.page = '1';
+        draft.page = "1";
       })
     );
   }
   function handlPageSize(option) {
-    console.log("pagesize option", parseInt(option));
+    console.log("pagesize option", parseInt(option), queryParams.page);
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.pageSize = parseInt(option);
+    }));
     mutation.mutate(
       produce(queryParams, (draft) => {
         draft.pageSize = parseInt(option);
+        draft.page = '1';
       })
     );
   }
   async function handlSearch(value) {
-    // if (mutation.data) {
-    //   // setSearchValue(value);
-    // }
-    // console.log('mutaon mutaion', mutation.mutateAsync());
+    console.log("Search value: ", value);
     setSearchValue(value);
-    await mutation.mutateAsync(
+    setQueryParams(
       produce(queryParams, (draft) => {
         draft.search = value;
       })
     );
+    console.log("finished.....", queryParams.search);
+    console.log("finished.2....", debouncedValue);
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.search = value;
+    }));
+    // await mutation.mutateAsync(
+    //   produce(queryParams, (draft) => {
+    //     draft.search = value;
+    //   })
+    // );
   }
   function handlePrice(e) {
     let ordering = "";
@@ -142,6 +163,9 @@ export default function Dashboard() {
     } else if (e === "Descending") {
       ordering = "-price";
     }
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.ordering = ordering;
+    }));
     mutation.mutate(
       produce(queryParams, (draft) => {
         draft.ordering = ordering;
@@ -152,10 +176,13 @@ export default function Dashboard() {
   function handleLastFetch(e) {
     let ordering = "";
     if (e === "Ascending") {
-      ordering = "last_fetched";
-    } else if (e === "Descending") {
       ordering = "-last_fetched";
+    } else if (e === "Descending") {
+      ordering = "last_fetched";
     }
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.ordering = ordering;
+    }));
     mutation.mutate(
       produce(queryParams, (draft) => {
         draft.ordering = ordering;
@@ -170,6 +197,9 @@ export default function Dashboard() {
     } else if (e === "Descending") {
       ordering = "-updated_at";
     }
+    setSearchParams(produce(queryParams, (draft) => {
+      draft.ordering = ordering;
+    }));
     mutation.mutate(
       produce(queryParams, (draft) => {
         draft.ordering = ordering;
@@ -184,11 +214,20 @@ export default function Dashboard() {
           <Toolbar disableGutters>
             <Logo />
             <SearchBar searchValue={searchValue} onChange={handlSearch} />
-            <Box sx={{ display: 'flex', justifyContent: 'end', flexGrow: 1, gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "end",
+                flexGrow: 1,
+                gap: 2,
+              }}
+            >
               <FullScreen />
-              <IconButton onClick={() => {
+              <IconButton
+                onClick={() => {
                   navigate("/settings");
-                }}>
+                }}
+              >
                 <SettingsIcon />
               </IconButton>
               <IconButton
@@ -255,45 +294,47 @@ export default function Dashboard() {
             </Box>
           </Box>
         </Box>
-        <Box sx={{ margin: 2 }}>
-          <TableContainer
-            component={Paper}
-            elevation={0}
-            sx={{ bgcolor: "#f5f6fa" }}
-          >
-            <Table
-              sx={{
-                minWidth: 1200,
-                borderCollapse: "separate",
-                borderSpacing: "0 18px",
-                borderRadius: "15px",
-              }}
+        {!query.isLoading && (
+          <Box sx={{ margin: 2 }}>
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{ bgcolor: "#f5f6fa" }}
             >
-              <TableHead>
-                <tr style={{ border: "hidden" }}>
-                  {head.map((value, index) => {
-                    return (
-                      <TableCell component={"th"} align="center" key={index}>
-                        <Typography variant="h6">{value}</Typography>
-                      </TableCell>
-                    );
-                  })}
-                </tr>
-              </TableHead>
-              <BodyTable />
-            </Table>
-          </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Pagination
-              count={Math.ceil(items.count / queryParams.pageSize)}
-              page={parseInt(queryParams.page)}
-              size="large"
-              shape="rounded"
-              variant="outlined"
-              onChange={handlPagination}
-            />
+              <Table
+                sx={{
+                  minWidth: 1200,
+                  borderCollapse: "separate",
+                  borderSpacing: "0 18px",
+                  borderRadius: "15px",
+                }}
+              >
+                <TableHead>
+                  <tr style={{ border: "hidden" }}>
+                    {head.map((value, index) => {
+                      return (
+                        <TableCell component={"th"} align="center" key={index}>
+                          <Typography variant="h6">{value}</Typography>
+                        </TableCell>
+                      );
+                    })}
+                  </tr>
+                </TableHead>
+                <BodyTable />
+              </Table>
+            </TableContainer>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Pagination
+                count={Math.ceil(items.count / queryParams.pageSize)}
+                page={parseInt(queryParams.page)}
+                size="large"
+                shape="rounded"
+                variant="outlined"
+                onChange={handlPagination}
+              />
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </>
   );

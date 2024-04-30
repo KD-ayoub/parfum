@@ -12,7 +12,7 @@ import { settingData } from "../../pages/main/index";
 export default function NotificationEmails() {
 
   const [exampleSettings, setExampleSettings] = useAtom(settingData);
-  const [emails, setEmails] = useState([]);
+  const [emails, setEmails] = useState(exampleSettings.settings.emails);
   const [emailInput, setEmailInput] = useState("");
   function handlAddButton(e) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

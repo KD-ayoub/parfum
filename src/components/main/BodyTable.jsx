@@ -20,7 +20,7 @@ import { intialqueryParams } from "../../pages/main/index";
 export default function BodyTable() {
   const [items, setItems] = useAtom(itemsData);
   const [showItemSetting, setShowItemSetting] = useAtom(showItemSettings);
-  const [queryParams, setQueryParams] = useAtom(intialqueryParams)
+  const [queryParams, setQueryParams] = useAtom(intialqueryParams);
   async function handlTrackedSwitch(e, index) {
     setItems(
       produce(items, (draft) => {
@@ -33,9 +33,11 @@ export default function BodyTable() {
         draft.results[index].status = data.item.status;
       })
     );
-    setQueryParams(produce(queryParams, (draft) => {
-        draft.page = '1';
-    }))
+    setQueryParams(
+      produce(queryParams, (draft) => {
+        draft.page = "1";
+      })
+    );
     console.log("post data", index, data);
   }
   return (
@@ -53,24 +55,10 @@ export default function BodyTable() {
                   component={"div"}
                   sx={{
                     display: "flex",
+                    justifyContent: 'center',
                     alignItems: "center",
                   }}
                 >
-                  <IconButton
-                    onClick={() => {
-                      console.log("aarr", showItemSetting);
-                      console.log("aarrrrrr", items);
-                      setShowItemSetting((prev) =>
-                        prev.map((val, idx) => (idx === index ? !val : val))
-                      );
-                    }}
-                  >
-                    {showItemSetting[index] ? (
-                      <ExpandLessIcon />
-                    ) : (
-                      <ExpandMoreIcon />
-                    )}
-                  </IconButton>
                   <img
                     width={90}
                     height={85}
@@ -126,12 +114,29 @@ export default function BodyTable() {
                 </Typography>
               </TableCell>
               <TableCell component={"td"} align="center">
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: 'center'}}>
                   <AntSwitch
                     id={value.id.toString()}
                     checked={value.status}
                     onChange={(e) => handlTrackedSwitch(e, index)}
                   />
+                  {value.status && (
+                    <IconButton
+                      onClick={() => {
+                        console.log("aarr", showItemSetting);
+                        console.log("aarrrrrr", items);
+                        setShowItemSetting((prev) =>
+                          prev.map((val, idx) => (idx === index ? !val : val))
+                        );
+                      }}
+                    >
+                      {showItemSetting[index] ? (
+                        <ExpandLessIcon />
+                      ) : (
+                        <ExpandMoreIcon />
+                      )}
+                    </IconButton>
+                  )}
                 </Box>
               </TableCell>
               <TableCell component={"td"} align="center">

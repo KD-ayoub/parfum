@@ -121,7 +121,7 @@ export default function ItemSettings({ index }) {
     // send setting to backend
     // postItemSettings(items);
     console.log("id of item", items.results[index].id, items.results[index].setting);
-    const res = await putItemSettings(items.results[index].setting, items.results[index].id);
+    const res = await putItemSettings(items.results[index].setting, items.results[index].id, authHeader);
     console.log("response of item", res);
     toast.success("Saved");
     console.log("test", desired_price, tracking_frequency);

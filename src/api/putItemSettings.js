@@ -1,7 +1,7 @@
 import axios from "axios";
 import { apiSource } from "./instance";
 
-export default async function putItemSettings(data, id) {
+export default async function putItemSettings(data, id, authHeader) {
   try {
     // const response = await axios.put(
     //   `http://192.168.1.22:8000/app/togglesetting/${id}/`,
@@ -20,7 +20,7 @@ export default async function putItemSettings(data, id) {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: "token f6ecf46f3dd38b2bf50d0fb677638e41448ac622",
+          Authorization: authHeader,
         },
       }
     );

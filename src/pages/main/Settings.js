@@ -42,7 +42,7 @@ export default function Settings() {
   const mutation = useMutation({
     mutationFn: async (newData) => {
       console.log("mutation: ");
-      return await postSettings(newData);
+      return await postSettings(newData, authHeader);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -65,7 +65,9 @@ export default function Settings() {
     );
     if (JSON.stringify(data) !== JSON.stringify(query.data)) {
       mutation.mutate(data);
+      return ;
     }
+    toast.success("Saved");
   }
 
   console.log("get output here", settingsData);
