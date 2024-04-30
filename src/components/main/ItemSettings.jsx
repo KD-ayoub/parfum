@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -113,7 +113,7 @@ export default function ItemSettings({ index }) {
     ) {
       /// send null to backend
       console.log("setting equal...");
-      const res = await putItemSettings(null, items.results[index].id);
+      const res = await putItemSettings(null, items.results[index].id, authHeader);
       console.log("setting equal...", res);
       toast.success("Saved");
       return;
@@ -127,6 +127,15 @@ export default function ItemSettings({ index }) {
     console.log("test", desired_price, tracking_frequency);
     console.log("setting", items.results[index].setting);
   }
+  useEffect(() => {
+    if (!items.results[index].setting) {
+      setItems(
+        produce(items, (draft) => {
+          draft.results[index].setting = defaultItemsetting;
+        })
+      );
+    }
+  }, []);
   return (
     <Box sx={{ display: "flex", justifyContent: "space-between" }}>
       <Toaster position="top-center" richColors />

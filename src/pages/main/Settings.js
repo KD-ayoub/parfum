@@ -30,7 +30,7 @@ export default function Settings() {
   const query = useQuery({
     queryKey: ["settingsData"],
     queryFn: async () => {
-      const data = await getSettings();
+      const data = await getSettings(authHeader);
       console.log("hereererere", data);
       if (JSON.stringify(data) !== "{}") {
         setSettingsData(data);

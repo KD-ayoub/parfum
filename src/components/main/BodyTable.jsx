@@ -16,28 +16,34 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import IconButton from "@mui/material/IconButton";
 import getItemStatus from "../../api/getItemStatus";
 import { intialqueryParams } from "../../pages/main/index";
+import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 
 export default function BodyTable() {
   const [items, setItems] = useAtom(itemsData);
   const [showItemSetting, setShowItemSetting] = useAtom(showItemSettings);
   const [queryParams, setQueryParams] = useAtom(intialqueryParams);
+  const authHeader = useAuthHeader();
+
   async function handlTrackedSwitch(e, index) {
     setItems(
       produce(items, (draft) => {
         draft.results[index].status = e.target.checked;
       })
     );
-    const data = await getItemStatus(items.results[index].id);
+    const data = await getItemStatus(items.results[index].id, authHeader);
     setItems(
       produce(items, (draft) => {
         draft.results[index].status = data.item.status;
       })
     );
-    setQueryParams(
-      produce(queryParams, (draft) => {
-        draft.page = "1";
-      })
+    setShowItemSetting((prev) =>
+      prev.map((val, idx) => (idx === index ? false : val))
     );
+    // setQueryParams(
+    //   produce(queryParams, (draft) => {
+    //     draft.page = "1";
+    //   })
+    // );
     console.log("post data", index, data);
   }
   return (
@@ -55,7 +61,7 @@ export default function BodyTable() {
                   component={"div"}
                   sx={{
                     display: "flex",
-                    justifyContent: 'center',
+                    justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
@@ -114,7 +120,13 @@ export default function BodyTable() {
                 </Typography>
               </TableCell>
               <TableCell component={"td"} align="center">
-                <Box sx={{ display: "flex", justifyContent: "center", alignItems: 'center'}}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   <AntSwitch
                     id={value.id.toString()}
                     checked={value.status}
@@ -157,26 +169,30 @@ export default function BodyTable() {
             </tr>
             {showItemSetting[index] && (
               <>
-                <tr>
-                  <td>
-                    <Typography variant="h6" marginLeft={2}>
-                      Item Settings:
-                    </Typography>
-                  </td>
-                </tr>
-                <tr key={value.id} style={{ backgroundColor: "white" }}>
-                  <TableCell
-                    component={"td"}
-                    sx={{
-                      ":first-of-type": {
-                        borderRadius: "18px",
-                      },
-                    }}
-                    colSpan={9}
-                  >
-                    <ItemSettings index={index} />
-                  </TableCell>
-                </tr>
+                {value.status && (
+                  <>
+                    <tr>
+                      <td>
+                        <Typography variant="h6" marginLeft={2}>
+                          Item Settings:
+                        </Typography>
+                      </td>
+                    </tr>
+                    <tr key={value.id} style={{ backgroundColor: "white" }}>
+                      <TableCell
+                        component={"td"}
+                        sx={{
+                          ":first-of-type": {
+                            borderRadius: "18px",
+                          },
+                        }}
+                        colSpan={9}
+                      >
+                        <ItemSettings index={index} />
+                      </TableCell>
+                    </tr>
+                  </>
+                )}
               </>
             )}
           </Fragment>

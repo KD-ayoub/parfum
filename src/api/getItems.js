@@ -13,12 +13,17 @@ function getQueries(queryParam) {
   return result;
 }
 
-export default async function getItems(queryParams) {
+export default async function getItems(queryParams, authHeader) {
   try {
     console.log("before..", queryParams);
     getQueries(queryParams);
     const response = await apiSource.get(
-      `/items/${getQueries(queryParams)}page_size=${queryParams.pageSize}`
+      `/items/${getQueries(queryParams)}page_size=${queryParams.pageSize}`,
+      {
+        headers: {
+          Authorization: authHeader,
+        },
+      }
     );
     // ?page_size=${queryParams.pageSize}&page=${queryParams.page}&status=${queryParams.status}&search=${queryParams.search}&ordering=${queryParams.ordering}`
     return response.data;

@@ -49,13 +49,14 @@ export default function Dashboard() {
   const [queryParams, setQueryParams] = useAtom(intialqueryParams);
   const debouncedValue = useDebounce(queryParams, 300);
   const [searchParams, setSearchParams] = useSearchParams();
+  const authHeader = useAuthHeader();
   const signOut = useSignOut();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ["itemsData", debouncedValue],
     queryFn: async () => {
-      const data = await getItems(queryParams);
+      const data = await getItems(queryParams, authHeader);
       console.log("hererereer", data);
       setItems(data);
       setShowItemSetting(new Array(data.results.length).fill(false));
